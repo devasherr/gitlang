@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/devasherr/gitlang/internal/config"
 	"github.com/devasherr/gitlang/internal/hooks"
@@ -41,18 +42,19 @@ func main() {
 
 	hook := os.Args[1]
 
-	var errs []error
+	var errs error
 
 	switch hook {
 	case "commit-msg":
-		errs = hooks.CommitMsg(cfg.CommitMsg)
+		errs = hooks.CommitMsg(cfg.CommitMsg, os.Args[2:])
 	default:
 		logger(ERROR, "unknown hook: "+hook)
+		os.Exit(1)
 	}
 
-	if len(errs) > 0 {
-		for _, err := range errs {
-			logger(ERROR, err.Error())
+	if errs != nil {
+		for err := range strings.SplitSeq(errs.Error(), "\n") {
+			logger(ERROR, err)
 		}
 		os.Exit(1)
 	}
