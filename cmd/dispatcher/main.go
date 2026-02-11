@@ -45,7 +45,10 @@ func main() {
 	var errs error
 
 	switch hook {
+	case "pre-commit":
+		errs = hooks.PreCommit(cfg.PreCommit)
 	case "commit-msg":
+		os.Exit(1) // WARN: remove this
 		errs = hooks.CommitMsg(cfg.CommitMsg, os.Args[2:])
 	default:
 		logger(ERROR, "unknown hook: "+hook)
@@ -59,5 +62,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	os.Exit(1) // remove this
+	os.Exit(1) // WARN: REMOVE THIS
 }
