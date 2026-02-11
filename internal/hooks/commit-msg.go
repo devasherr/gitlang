@@ -38,5 +38,13 @@ func CommitMsg(cfg config.CommitMsg, args []string) error {
 		}
 	}
 
+	if len(cfg.ForbiddenWords) > 0 {
+		for _, word := range cfg.ForbiddenWords {
+			if strings.Contains(msg, word) {
+				errs = append(errs, fmt.Errorf("`%s` is forbidden in commit message", word))
+			}
+		}
+	}
+
 	return errors.Join(errs...)
 }
