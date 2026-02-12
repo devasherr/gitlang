@@ -13,7 +13,21 @@ import (
 	"github.com/devasherr/gitlang/internal/config"
 )
 
-func PreCommit(cfg config.PreCommit) error {
+func PreCommit(c config.Config) error {
+	if c.Branch.Enabled && len(c.Branch.Protected) > 0 {
+		cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+		output, err := cmd.Output()
+		if err != nil {
+			return err
+		}
+
+		branch_name := strings.TrimRight(string(output), "\n")
+		if slices.Contains(c.Branch.Protected, branch_name) {
+			return fmt.Errorf("protected branch `%s`. can not make direct commits to this branch", branch_name)
+		}
+	}
+
+	cfg := c.PreCommit
 	if !cfg.Enabled {
 		return nil
 	}
@@ -94,14 +108,13 @@ func checkLowercase(s string) error {
 
 func handleNamingConventions(s string, cfg config.Conventions) error {
 	var errs []error
-	if len(cfg.Naming) > 0 {
-		for _, nameing := range cfg.Naming {
-			if nameing == "no_spaces" {
-				errs = append(errs, checkNoSpace(s))
-			}
-			if nameing == "lowercase" {
-				errs = append(errs, checkLowercase(s))
-			}
+
+	for _, nameing := range cfg.Naming {
+		if nameing == "no_spaces" {
+			errs = append(errs, checkNoSpace(s))
+		}
+		if nameing == "lowercase" {
+			errs = append(errs, checkLowercase(s))
 		}
 	}
 

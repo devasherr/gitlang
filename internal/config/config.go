@@ -4,6 +4,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Branch struct {
+	Enabled   bool     `yaml:"enabled"`
+	Protected []string `yaml:"protected"`
+}
+
 type Conventions struct {
 	Naming []string `yaml:"naming"`
 	Casing []string `yaml:"casing"`
@@ -27,8 +32,9 @@ type CommitMsg struct {
 }
 
 type Config struct {
-	CommitMsg CommitMsg `yaml:"commit-msg"`
+	Branch    Branch    `yaml:"branch"`
 	PreCommit PreCommit `yaml:"pre-commit"`
+	CommitMsg CommitMsg `yaml:"commit-msg"`
 }
 
 func LoadConfig(body []byte) (Config, error) {
