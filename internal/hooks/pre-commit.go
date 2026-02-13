@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"unicode"
@@ -22,6 +23,16 @@ func PreCommit(c config.Config) error {
 		}
 
 		branch_name := strings.TrimRight(string(output), "\n")
+
+		// regex check
+		if c.Branch.Pattern != "" {
+			matched, _ := regexp.MatchString(c.Branch.Pattern, branch_name)
+			if !matched {
+				// temporary form of logging
+				fmt.Fprintf(os.Stderr, "gitlang(warn): branch name does not satisfy pattern `%s`\n", c.Branch.Pattern)
+			}
+		}
+
 		if slices.Contains(c.Branch.Protected, branch_name) {
 			return fmt.Errorf("protected branch `%s`. can not make direct commits to this branch", branch_name)
 		}

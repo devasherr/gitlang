@@ -7,6 +7,7 @@ import (
 type Branch struct {
 	Enabled   bool     `yaml:"enabled"`
 	Protected []string `yaml:"protected"`
+	Pattern   string   `yaml:"pattern"`
 }
 
 type Conventions struct {
