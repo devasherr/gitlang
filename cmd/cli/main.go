@@ -10,7 +10,6 @@ import (
 )
 
 func downloadBinary(url, path string) error {
-	// TODO: path will be gloabl, saved on PATH
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -67,6 +66,14 @@ exec ./.gbin/dispatcher %s "$@"`, hook)
 	return errors.Join(errs...)
 }
 
+func generateConfigFile() error {
+	// check if config file exists
+	// if exists, don't replace
+	// make file
+	// populate config content from example config
+	return nil
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("not enough arguments provided")
@@ -86,6 +93,11 @@ func main() {
 		// route git hooks to use dispatcher
 		if err = routeGitHooks(); err != nil {
 			log.Fatalf("failed to reroute git hook to dispatcher: %s", err.Error())
+		}
+
+		// make .gitlang.yaml file
+		if err = generateConfigFile(); err != nil {
+			log.Fatalf("failed to generate default config file: %s", err.Error())
 		}
 	default:
 		log.Fatalf("unknown argument: %s", os.Args[1])
