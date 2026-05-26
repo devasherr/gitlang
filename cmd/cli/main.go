@@ -202,7 +202,7 @@ func main() {
 			log.Fatal("unable to locate .git, make sure current project is tracked by git")
 		}
 
-		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.0/gitlang-dispatcher-linux-amd64"); err != nil {
+		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.1/gitlang-dispatcher-linux-amd64"); err != nil {
 			log.Fatalf("failed to download dispatcher: %s", err.Error())
 		}
 
