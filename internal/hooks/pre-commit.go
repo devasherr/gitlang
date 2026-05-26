@@ -16,7 +16,8 @@ import (
 
 func PreCommit(c config.Config) error {
 	if c.Branch.Enabled && len(c.Branch.Protected) > 0 {
-		cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+		// get current branch name
+		cmd := exec.Command("git", "symbolic-ref", "--short", "HEAD")
 		output, err := cmd.Output()
 		if err != nil {
 			return err
