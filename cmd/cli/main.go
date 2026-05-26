@@ -7,10 +7,35 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"time"
 )
 
-func downloadBinary(url, path string) error {
-	resp, err := http.Get(url)
+func downloadBinary(url string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(home, ".gitlang", "bin")
+	path := filepath.Join(dir, "dispatcher")
+
+	// only download dispatcher once (globally)
+	if _, err := os.Stat(path); err == nil {
+		return nil
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
+	// create dir if not exist
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return err
 	}
@@ -20,23 +45,25 @@ func downloadBinary(url, path string) error {
 		return fmt.Errorf("response status: %s", resp.Status)
 	}
 
-	// create dir if not exist
-	if err = os.Mkdir(".gbin", 0755); err != nil {
-		return err
-	}
+	// write on tmp file, later raname
+	// don't want a corrupted binary if download fails mid way
+	tmp := path + ".tmp"
 
-	file, err := os.Create(path)
+	file, err := os.Create(tmp)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	if err = os.Chmod(path, 0755); err != nil {
+	if _, err = io.Copy(file, resp.Body); err != nil {
 		return err
 	}
 
-	_, err = io.Copy(file, resp.Body)
-	return err
+	if err = os.Chmod(tmp, 0755); err != nil {
+		return err
+	}
+
+	return os.Rename(tmp, path)
 }
 
 func routeGitHooks() error {
@@ -55,7 +82,7 @@ func routeGitHooks() error {
 
 		content := fmt.Sprintf(
 			`#!/bin/sh
-exec ./.gbin/dispatcher %s "$@"`, hook)
+exec $HOME/.gitlang/bin/dispatcher %s "$@"`, hook)
 		_, err = file.WriteString(content)
 		if err != nil {
 			errs = append(errs, err)
@@ -69,8 +96,13 @@ exec ./.gbin/dispatcher %s "$@"`, hook)
 func generateConfigFile() error {
 	file, err := os.OpenFile(".gitlang.yaml", os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0666)
 	if err != nil {
-		return err
+		if os.IsExist(err) {
+			return nil
+		} else {
+			return err
+		}
 	}
+	defer file.Close()
 
 	// default config
 	content := []byte(`# ==========================================
@@ -170,7 +202,7 @@ func main() {
 			log.Fatal("unable to locate .git, make sure current project is tracked by git")
 		}
 
-		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.0/gitlang-dispatcher-linux-amd64", "./.gbin/dispatcher"); err != nil {
+		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.0/gitlang-dispatcher-linux-amd64"); err != nil {
 			log.Fatalf("failed to download dispatcher: %s", err.Error())
 		}
 
