@@ -190,12 +190,24 @@ commit-msg:
 	return err
 }
 
+func printVersion() {
+	gitlang_ascii := `
+▄▖▘▗ ▜           ▄▖  ▗   ▗
+▌ ▌▜▘▐ ▀▌▛▌▛▌  ▌▌▛▌  ▜   ▜
+▙▌▌▐▖▐▖█▌▌▌▙▌  ▚▘█▌▗ ▟▖▗ ▟▖
+           ▄▌              `
+
+	fmt.Println(gitlang_ascii)
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("not enough arguments provided")
 	}
 
 	switch os.Args[1] {
+	case "version":
+		printVersion()
 	case "init":
 		_, err := os.ReadDir(".git")
 		if err != nil {
