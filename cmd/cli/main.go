@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func downloadBinary(url string) error {
+func downloadBinary(url string, force bool) error {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -19,11 +19,13 @@ func downloadBinary(url string) error {
 	dir := filepath.Join(home, ".gitlang", "bin")
 	path := filepath.Join(dir, "dispatcher")
 
-	// only download dispatcher once (globally)
-	if _, err := os.Stat(path); err == nil {
-		return nil
-	} else if !os.IsNotExist(err) {
-		return err
+	if !force {
+		// only download dispatcher once (globally)
+		if _, err := os.Stat(path); err == nil {
+			return nil
+		} else if !os.IsNotExist(err) {
+			return err
+		}
 	}
 
 	// create dir if not exist
@@ -53,6 +55,8 @@ func downloadBinary(url string) error {
 	if err != nil {
 		return err
 	}
+	// remove tmp if error occurs
+	defer os.Remove(tmp)
 	defer file.Close()
 
 	if _, err = io.Copy(file, resp.Body); err != nil {
@@ -208,13 +212,17 @@ func main() {
 	switch os.Args[1] {
 	case "version":
 		printVersion()
+	case "upgrade":
+		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.1/gitlang-dispatcher-linux-amd64", true); err != nil {
+			log.Fatalf("failed to download dispatcher: %s", err.Error())
+		}
 	case "init":
 		_, err := os.ReadDir(".git")
 		if err != nil {
 			log.Fatal("unable to locate .git, make sure current project is tracked by git")
 		}
 
-		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.1/gitlang-dispatcher-linux-amd64"); err != nil {
+		if err := downloadBinary("https://github.com/devasherr/gitlang/releases/download/v0.1.1/gitlang-dispatcher-linux-amd64", false); err != nil {
 			log.Fatalf("failed to download dispatcher: %s", err.Error())
 		}
 
