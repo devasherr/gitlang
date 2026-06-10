@@ -21,6 +21,23 @@ Gitlang helps enforce clean Git workflows using a single configuration file.
 sudo curl -L https://github.com/devasherr/gitlang/releases/download/v0.1.1/gitlang-cli-linux-amd64 -o /usr/local/bin/gitlang && sudo chmod +x /usr/local/bin/gitlang
 ```
 
+## Verify Installation
+
+Run:
+
+```bash
+gitlang version
+```
+
+You should see:
+
+```text
+▄▖▘▗ ▜           ▄▖  ▗   ▗
+▌ ▌▜▘▐ ▀▌▛▌▛▌  ▌▌▛▌  ▜   ▜
+▙▌▌▐▖▐▖█▌▌▌▙▌  ▚▘█▌▗ ▟▖▗ ▟▖
+           ▄▌              
+```
+
 ---
 
 # Quick Start
