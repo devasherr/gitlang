@@ -51,20 +51,6 @@ pre-commit:
         - no_spaces # File names cannot contain spaces
         - lowercase # File names must be lowercase only
 
-  # Command to run before commit
-  # These commands only execute if staged files match the given patterns
-  run:
-    # Run ESLint only if staged JS or TS files exist
-    - cmd: "npm run lint"
-      match:
-        - "*.js"
-        - "*.ts"
-
-    # Run go vet only if staged Go files exist
-    - cmd: "go vet ./..."
-      match:
-        - "*.go"
-
 # ------------------------------------------
 # Commit Message Rules
 # ------------------------------------------

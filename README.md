@@ -126,13 +126,6 @@ pre-commit:
     file:
       naming: [no_spaces, lowercase]
 
-  run:
-    - cmd: "npm run lint"
-      match: ["*.js", "*.ts"]
-
-    - cmd: "go vet ./..."
-      match: ["*.go"]
-
 commit-msg:
   enabled: true
   min_length: 10
